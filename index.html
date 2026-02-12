@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+
+<style>
+  :root {
+    /* --- BRANDING & COLORS (Bidfoodhome Green Theme) --- */
+    --chat--color--primary: #5a7422; /* Brand Green */
+    --chat--color--primary-shade-50: #8BC63E; /* Bright Lime Green */
+    --chat--color--primary--shade-100: #1a2807; /* Dark Forest Green */
+    --chat--color--secondary: #8BC63E; /* Match brand green for consistency */
+    --chat--color-secondary-shade-50: #5a7422;
+    
+    --chat--color-white: #ffffff;
+    --chat--color-light: #f9fafb; /* Very light gray background */
+    --chat--color-light-shade-50: #f3f4f6;
+    --chat--color-light-shade-100: #e5e7eb;
+    --chat--color-medium: #9ca3af;
+    --chat--color-dark: #1f2937; /* Dark Slate instead of pure black */
+    --chat--color-disabled: #d1d5db;
+    --chat--color-typing: #5a7422;
+
+    /* --- TYPOGRAPHY --- */
+    --chat--font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* --- LAYOUT & SHAPE --- */
+    --chat--spacing: 1rem;
+    --chat--border-radius: 12px; /* Softer corners */
+    --chat--transition-duration: 0.2s;
+
+    /* --- WINDOW STYLING --- */
+    --chat--window--width: 440px; /* Sleek, compact width */
+    --chat--window--height: 600px; /* Modern proportions */
+    --chat--window--bottom: 25px;
+    --chat--window--right: 25px;
+    --chat--window--z-index: 10000;
+    /* Soft border instead of harsh outline */
+    --chat--window--border: 1px solid rgba(0,0,0,0.08); 
+    --chat--window--border-radius: 30px;
+    
+    /* --- HEADER --- */
+    --chat--header-height: 65px;
+    --chat--header--padding: 16px;
+    --chat--header--background: var(--chat--color-white); /* Clean white header */
+    --chat--header--color: var(--chat--color-dark); /* Dark text on white */
+    --chat--header--border-bottom: 1px solid var(--chat--color-light-shade-100);
+    --chat--heading--font-size: 1.25rem;
+    --chat--subtitle--font-size: 0.9rem;
+
+    /* --- MESSAGES --- */
+    --chat--message--font-size: 0.95rem;
+    --chat--message--padding: 12px 16px;
+    --chat--message--border-radius: 12px;
+    --chat--message-line-height: 1.6;
+    --chat--message--margin-bottom: 12px;
+    
+    /* Bot Message (Gray Bubble) */
+    --chat--message--bot--background: #f3f4f6; 
+    --chat--message--bot--color: #111827;
+    --chat--message--bot--border: none;
+    
+    /* User Message (Brand Color Bubble) */
+    --chat--message--user--background: var(--chat--color--primary);
+    --chat--message--user--color: var(--chat--color-white);
+    
+    /* --- TOGGLE BUTTON (Launcher) --- */
+    --chat--toggle--size: 60px; /* Slightly smaller/cleaner */
+    --chat--toggle--border-radius: 50%;
+    --chat--toggle--background: var(--chat--color--primary);
+    --chat--toggle--color: var(--chat--color-white);
+    
+    /* --- INPUT AREA (The biggest change for modern look) --- */
+    --chat--textarea--height: 50px;
+    --chat--input--background: #ffffff;
+    --chat--input--padding: 12px 16px;
+    --chat--input--border-radius: 0px; /* Pill shape */
+    --chat--input--border: 0px solid #e5e7eb; /* Subtle border (removed) */
+    --chat--input--border-active: 1px solid var(--chat--color--primary);
+    --chat--input--placeholder--font-size: 0.9rem;
+  }
+
+  /* Custom override to add a shadow (Variables don't support shadow directly) */
+  .chat-window {
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* Fullscreen mode styling */
+  .chat-window.fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .chat-message img {
+    max-width: 50%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  /* Fullscreen toggle button */
+  .chat-fullscreen-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #5a7422;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    z-index: 1001;
+  }
+
+  .chat-fullscreen-btn:hover {
+    background: rgba(90, 116, 34, 0.1);
+  }
+
+  .chat-fullscreen-btn:active {
+    background: rgba(90, 116, 34, 0.2);
+  }
+
+</style>
+
+<script type="module">
+	import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+	let isFullscreen = false;
+	const chatInstance = createChat({
+		webhookUrl: 'https://n8n.autom8n.site/webhook/3548429f-6a4b-4848-b2bf-b8d78b15f898/chat',
+		initialMessages: [
+		'Hey there! 👋 Welcome to Bidfoodhome',
+		'Ready to discover amazing deals on fresh food? I\'m here to help!'
+		],
+        mode: 'window',
+        chatSessionKey: 'sessionId',
+        i18n: {
+		en: {
+			title: '🧑‍💻 BidFoodHome Shopping Assistant',
+			subtitle: "",
+			footer: '',
+			getStarted: 'Start Chatting',
+			inputPlaceholder: 'Ask me anything...',
+		    },
+	    },
+    enableStreaming: false
+	});
+
+	// Add fullscreen toggle functionality
+	setTimeout(() => {
+		const chatWindow = document.querySelector('.chat-window');
+		const header = document.querySelector('.chat-header');
+		
+		if (chatWindow && header) {
+			// Create fullscreen toggle button
+			const toggleBtn = document.createElement('button');
+			toggleBtn.className = 'chat-fullscreen-btn';
+			toggleBtn.innerHTML = '⛶';
+			toggleBtn.title = 'Toggle fullscreen';
+			
+			// Insert button in header
+			header.appendChild(toggleBtn);
+			
+			toggleBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				isFullscreen = !isFullscreen;
+				
+				if (isFullscreen) {
+					chatWindow.classList.add('fullscreen');
+					toggleBtn.innerHTML = '✕';
+					toggleBtn.title = 'Exit fullscreen';
+					document.body.style.overflow = 'hidden';
+				} else {
+					chatWindow.classList.remove('fullscreen');
+					toggleBtn.innerHTML = '⛶';
+					toggleBtn.title = 'Toggle fullscreen';
+					document.body.style.overflow = '';
+				}
+			});
+		}
+	}, 500);
+</script>
+</body>
+</html>
